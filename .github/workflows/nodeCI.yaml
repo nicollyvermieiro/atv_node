@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:15
@@ -25,22 +26,29 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
     steps:
+      # 1️⃣ Checkout do repositório
       - uses: actions/checkout@v3
+
+      # 2️⃣ Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # 3️⃣ Instalar dependências
       - name: Install dependencies
         run: npm install
-        
-      - name: Run tests
-        run: npx jest
-      # Se você tiver migrations:
-      - name: Execute migrations
-        run: npm run migrate || echo "No migrations script found"
-      - name: Build project
-        run: npm run build || echo "No build script found"
+
+      # 4️⃣ Rodar testes (Jest)
       - name: Run tests
         run: npm test
+
+      # 5️⃣ Executar migrations se houver
+      - name: Execute migrations
+        run: npm run migrate || echo "No migrations script found"
+
+      # 6️⃣ Build do projeto se houver
+      - name: Build project
+        run: npm run build || echo "No build script found"
