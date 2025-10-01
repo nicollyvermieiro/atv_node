@@ -4,18 +4,17 @@ const clienteRoutes = require("./routes/clienteRoutes");
 const path = require("path");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
+// Configurações do EJS
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+// Middlewares
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "views")));
 
+// Rotas
 app.use("/", clienteRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando em http://localhost:${PORT}`);
-});
-
-module.exports = app; // p/ testes
+// Exporta o app, sem chamar listen aqui (servidor é iniciado no server.js)
+module.exports = app;
