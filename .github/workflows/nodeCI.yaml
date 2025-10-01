@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:15
@@ -26,6 +25,13 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+
+    env: # 🔑 aqui vai bater com seu pool do db.js
+      PGUSER: node_user
+      PGPASSWORD: node123
+      PGDATABASE: clientesdb
+      PGHOST: localhost
+      PGPORT: 5432
 
     steps:
       # 1️⃣ Checkout do repositório
