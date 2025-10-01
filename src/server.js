@@ -1,5 +1,4 @@
-// server.js
-import app from "./src/app.js";
+const app = require("./app"); // CommonJS e caminho relativo correto
 
 const PORT = process.env.PORT || 3000;
 

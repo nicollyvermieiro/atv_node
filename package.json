@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-  "test": "jest"
+  "start": "node src/server.js",
+  "test": "jest",
+  "migrate": "psql -h $DB_HOST -U $DB_USER -d $DB_NAME -f init.sql"
   },
   "keywords": [],
   "author": "",
