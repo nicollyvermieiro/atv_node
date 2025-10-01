@@ -1,5 +1,42 @@
 name: nodeCI
 
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: node_user
+          POSTGRES_PASSWORD: node123
+          POSTGRES_DB: clientesdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm install
+      # Se você tiver migrations:
+      - name: Execute migrations
+        run: npm run migrate || echo "No migrations script found"
+      - name: Build project
+        run: npm run build || echo "No build script found"
+      - name: Run tests
+        run: npm test
