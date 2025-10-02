@@ -11,24 +11,25 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     services:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_USER: node_user
-          POSTGRES_PASSWORD: node123
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
           POSTGRES_DB: clientesdb
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd pg_isready -U postgres
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
 
-    env: # 🔑 usado pelo psql e pelo Jest
-      PGUSER: node_user
-      PGPASSWORD: node123
+    env: # 🔑 usado pelo Node e pelo Jest
+      PGUSER: postgres
+      PGPASSWORD: postgres
       PGDATABASE: clientesdb
       PGHOST: 127.0.0.1
       PGPORT: 5432
@@ -49,9 +50,9 @@ jobs:
 
       # 4️⃣ Criar tabelas a partir do init.sql
       - name: Run init.sql
-        run: psql -h 127.0.0.1 -U node_user -d clientesdb -f init.sql
+        run: psql -h 127.0.0.1 -U postgres -d clientesdb -f init.sql
 
-      # 5️⃣ Rodar testes (Jest)
+      # 5️⃣ Rodar testes (Jest ou outro runner)
       - name: Run tests
         run: npm test
 
