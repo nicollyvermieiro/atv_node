@@ -19,14 +19,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: clientesdb
-        # Sem options, nada de healthcheck
-        # O passo "Wait for Postgres" vai garantir que o banco esteja pronto
+        # porta não precisa mapear no Actions, a comunicação é interna
 
     env:
       PGUSER: postgres
       PGPASSWORD: postgres
       PGDATABASE: clientesdb
-      PGHOST: 127.0.0.1
+      PGHOST: postgres    # 🔑 hostname do serviço
       PGPORT: 5432
 
     steps:
@@ -46,14 +45,14 @@ jobs:
       # 4️⃣ Esperar Postgres ficar pronto
       - name: Wait for Postgres
         run: |
-          until pg_isready -h 127.0.0.1 -U postgres; do
+          until pg_isready -h postgres -U postgres; do
             echo "Waiting for Postgres..."
             sleep 2
           done
 
       # 5️⃣ Criar tabelas a partir do init.sql
       - name: Run init.sql
-        run: psql -h 127.0.0.1 -U postgres -d clientesdb -f init.sql
+        run: psql -h postgres -U postgres -d clientesdb -f init.sql
 
       # 6️⃣ Rodar testes
       - name: Run tests
