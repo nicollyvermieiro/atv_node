@@ -19,11 +19,8 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: clientesdb
-        # Removemos o --health-cmd problemático
-        options: >-
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        # Sem options, nada de healthcheck
+        # O passo "Wait for Postgres" vai garantir que o banco esteja pronto
 
     env:
       PGUSER: postgres
