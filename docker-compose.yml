@@ -22,11 +22,11 @@ services:
     depends_on:
       - db
     environment:
-      DB_USER: postgres
-      DB_PASSWORD: postgres
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_NAME: clientesdb
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: clientesdb
     volumes:
       - .:/usr/src/app
     command: npm start
