@@ -1,6 +1,6 @@
 CREATE DATABASE clientesdb;
 
-\c clientesdb;
+
 
 CREATE TABLE clientes (
   id SERIAL PRIMARY KEY,
