@@ -19,13 +19,21 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: clientesdb
-        # options removido totalmente
+        ports:
+          - 5432:5432
+
+    env:
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: clientesdb
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
 
     steps:
       # 1️⃣ Checkout
       - uses: actions/checkout@v3
 
-      # 2️⃣ Node.js
+      # 2️⃣ Configurar Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -35,11 +43,15 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=dev
 
-      # 4️⃣ Esperar Postgres ficar pronto usando docker exec
+      # 4️⃣ Instalar cliente PostgreSQL para poder rodar psql
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      # 5️⃣ Esperar Postgres ficar pronto
       - name: Wait for Postgres
         run: |
           for i in $(seq 1 30); do
-            if docker exec postgres pg_isready -U postgres; then
+            if PGPASSWORD=$PGPASSWORD psql -h $PGHOST -U $PGUSER -d $PGDATABASE -c '\q'; then
               echo "Postgres is ready!"
               break
             fi
@@ -47,30 +59,30 @@ jobs:
             sleep 2
           done
 
-      # 5️⃣ Criar tabelas a partir do init.sql
+      # 6️⃣ Criar tabelas a partir do init.sql
       - name: Run init.sql
-        run: docker exec -i postgres psql -U postgres -d clientesdb < init.sql
+        run: PGPASSWORD=$PGPASSWORD psql -h $PGHOST -U $PGUSER -d $PGDATABASE -f init.sql
 
-      # 6️⃣ Rodar testes
+      # 7️⃣ Rodar testes
       - name: Run tests
         run: npm test
 
-      # 7️⃣ Executar migrations
+      # 8️⃣ Executar migrations se houver
       - name: Execute migrations
         run: npm run migrate || echo "No migrations script found"
 
-      # 8️⃣ Build do projeto
+      # 9️⃣ Build do projeto
       - name: Build project
         run: npm run build || echo "No build script found"
 
-      # 9️⃣ Login Docker Hub
+      # 🔟 Login Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # 🔟 Build e push da imagem Docker
+      # 1️⃣1️⃣ Build e push da imagem Docker
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
