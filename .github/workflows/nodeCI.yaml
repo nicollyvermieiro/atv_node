@@ -19,17 +19,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: clientesdb
-        options: >-
-          --health-cmd pg_isready -U postgres
-          --health-interval 5s
-          --health-timeout 2s
-          --health-retries 10
+        # options removido totalmente
 
     steps:
-      # 1️⃣ Checkout do repositório
+      # 1️⃣ Checkout
       - uses: actions/checkout@v3
 
-      # 2️⃣ Configurar Node.js
+      # 2️⃣ Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -39,15 +35,19 @@ jobs:
       - name: Install dependencies
         run: npm ci --include=dev
 
-      # 4️⃣ Esperar Postgres ficar pronto usando pg_isready no container
+      # 4️⃣ Esperar Postgres ficar pronto usando docker exec
       - name: Wait for Postgres
         run: |
-          until docker exec postgres pg_isready -U postgres; do
+          for i in $(seq 1 30); do
+            if docker exec postgres pg_isready -U postgres; then
+              echo "Postgres is ready!"
+              break
+            fi
             echo "Waiting for Postgres..."
             sleep 2
           done
 
-      # 5️⃣ Criar tabelas a partir do init.sql dentro do container
+      # 5️⃣ Criar tabelas a partir do init.sql
       - name: Run init.sql
         run: docker exec -i postgres psql -U postgres -d clientesdb < init.sql
 
@@ -55,15 +55,15 @@ jobs:
       - name: Run tests
         run: npm test
 
-      # 7️⃣ Executar migrations se houver
+      # 7️⃣ Executar migrations
       - name: Execute migrations
         run: npm run migrate || echo "No migrations script found"
 
-      # 8️⃣ Build do projeto se houver
+      # 8️⃣ Build do projeto
       - name: Build project
         run: npm run build || echo "No build script found"
 
-      # 9️⃣ Login no Docker Hub
+      # 9️⃣ Login Docker Hub
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
